@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Design Strategy | Creative Core vs Production</title>
+    <!-- 引入 Tailwind CSS (樣式庫) - 需連網 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js (圖表庫) - 需連網 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 
+      若您看到此頁面沒有樣式或圖表，請檢查您的網路連線，
+      或是企業防火牆是否阻擋了 cdn.tailwindcss.com 與 cdn.jsdelivr.net
+    -->
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+        
+        :root {
+            --neon-mint: #27f194;
+            --vitality-orange: #ff9432;
+            --deep-slate: #1e293b;
+        }
+
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #fcfcfc; 
+            color: #1e293b; 
+        }
+
+        /* 讓捲軸看起來更現代 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .card { 
+            background: white; 
+            border-radius: 1.5rem; 
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover { 
+            border-color: var(--neon-mint);
+            box-shadow: 0 10px 30px -10px rgba(39, 241, 148, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            height: 320px; 
+            max-height: 400px; 
+        }
+
+        /* 文字顏色工具 */
+        .text-mint { color: #059669; }
+        .bg-mint { background-color: var(--neon-mint); }
+        .bg-orange { background-color: var(--vitality-orange); }
+        .text-orange { color: var(--vitality-orange); }
+        
+        /* 滑桿樣式 */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: var(--neon-mint);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 0 10px rgba(39, 241, 148, 0.6);
+            border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="selection:bg-[#27f194] selection:text-slate-900">
+
+    <!-- 導航列 -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-[#27f194] rounded-full animate-pulse"></div>
+                    <span class="text-xl font-bold tracking-tight text-slate-900">Visual Design <span class="text-slate-400 font-light">Core</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <button onclick="scrollToSection('analysis')" class="text-sm font-medium text-slate-500 hover:text-[#ff9432] transition">現況 Diagnosis</button>
+                    <button onclick="scrollToSection('value')" class="text-sm font-medium text-slate-500 hover:text-[#ff9432] transition">核心價值 Value</button>
+                    <button onclick="scrollToSection('resources')" class="text-sm font-medium text-slate-500 hover:text-[#ff9432] transition">資源互補 Resources</button>
+                </div>
+                <button onclick="scrollToSection('future')" class="bg-black text-[#27f194] px-5 py-2 rounded-full text-sm font-bold hover:shadow-[0_0_15px_rgba(39,241,148,0.4)] transition">
+                    未來 Roadmap
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section: 主視覺 -->
+    <header class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="relative">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-[#27f194] rounded-full blur-[80px] opacity-20"></div>
+            
+            <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-6">
+                我們是 '大腦'<br>
+                <span class="relative inline-block">
+                    <span class="relative z-10">    外包是 '手腳' </span>
+                    <span class="absolute bottom-2 left-0 w-full h-4 bg-[#27f194] -z-0 opacity-60 transform -rotate-1"></span>
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-500 max-w-2xl font-light">
+                我們的團隊來自設計與廣告公司，創意實力不輸外包。<br>
+                區別在於：我們負責「概念與核心」，外包負責「量產與設備」。
+            </p>
+            
+            <div class="mt-10 flex flex-wrap gap-4">
+                <div class="flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="w-2 h-2 rounded-full bg-[#ff9432]"></div>
+                    <span class="text-sm font-medium text-slate-600">外包優勢 = 設備與產能 (Animation/Print)</span>
+                </div>
+                <div class="flex items-center gap-3 px-4 py-2 bg-[#f0fdf7] rounded-lg border border-[#27f194]">
+                    <div class="w-2 h-2 rounded-full bg-[#27f194]"></div>
+                    <span class="text-sm font-bold text-slate-800">我們優勢 = 策略與創意 (Strategy/Creativity)</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-32 pb-24">
+
+        <!-- 1. 現況分析 -->
+        <section id="analysis">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <span class="text-[#ff9432] font-bold tracking-widest text-xs uppercase mb-2 block">Part 01: Status Quo</span>
+                    <h2 class="text-3xl font-bold text-slate-900">為什麼需要釐清定位？</h2>
+                </div>
+                <p class="text-slate-500 max-w-md text-right md:text-left mt-4 md:mt-0 text-sm">
+                    主管的質疑來自於誤解：<br>
+                    以為我們只是「做得比較慢的製作公司」，<br>
+                    忽略了我們是「擁有 Agency 腦袋的內部團隊」。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="col-span-1 lg:col-span-1 space-y-4">
+                    <div class="card p-8 h-full flex flex-col justify-center bg-slate-900 text-white border-none">
+                        <h3 class="text-2xl font-bold mb-4 text-[#27f194]">能力 vs 資源</h3>
+                        <p class="text-slate-300 leading-relaxed mb-6">
+                            我們"能"做設計，但我們"沒有"印刷機與算圖農場。
+                            <br><br>
+                            承認這一點不是示弱，而是策略轉型的開始：把需要重裝備的工作交出去，把高價值的大腦留下來。
+                        </p>
+                    </div>
+                </div>
+                <div class="col-span-1 lg:col-span-2">
+                    <div class="card p-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6">目前時間分配 (需調整)</h3>
+                        <div class="chart-container">
+                            <canvas id="currentWorkloadChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 核心價值 (強調 Agency 背景) -->
+        <section id="value">
+            <div class="mb-12 text-center">
+                <span class="text-[#27f194] font-bold tracking-widest text-xs uppercase mb-2 block">Part 02: The Core Strength</span>
+                <h2 class="text-3xl font-bold text-slate-900">我們不輸外包，因為我們「曾是」外包</h2>
+                <p class="text-slate-500 mt-4 max-w-2xl mx-auto">
+                    我們的團隊成員具備<strong>設計公司與廣告公司背景</strong>。<br>
+                    在創意與風格多樣性上，我們擁有同等實力，但多了品牌精準度。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div class="card p-6 md:p-10 border-[#27f194] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-[#27f194] opacity-10 rounded-bl-full"></div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold">能力雷達：創意對等，資源互補</h3>
+                    </div>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-4">* 創意分數相當 (9分)，差異在於硬體資源與產能</p>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="group cursor-default">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-[#e6fffa] flex items-center justify-center text-[#27f194] font-bold">1</div>
+                            <h4 class="text-xl font-bold text-slate-800 group-hover:text-[#27f194] transition-colors">
+                                創意實力 (Creativity)
+                            </h4>
+                        </div>
+                        <p class="text-slate-500 pl-11 border-l-2 border-slate-200 group-hover:border-[#27f194] transition-colors">
+                            <span class="text-slate-800 font-bold">我們 = 外包。</span><br>
+                            團隊來自業界，同樣具備高水準的視覺美感與風格掌握力。我們不是因為「做不出好東西」才在內部，而是為了「做對的東西」。
+                        </p>
+                    </div>
+                    <div class="group cursor-default">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-[#e6fffa] flex items-center justify-center text-[#27f194] font-bold">2</div>
+                            <h4 class="text-xl font-bold text-slate-800 group-hover:text-[#27f194] transition-colors">
+                                品牌/領域知識 (Context)
+                            </h4>
+                        </div>
+                        <p class="text-slate-500 pl-11 border-l-2 border-slate-200 group-hover:border-[#27f194] transition-colors">
+                            <span class="text-slate-800 font-bold">我們 > 外包。</span><br>
+                            我們懂金控的法規紅線、懂各子公司的品牌階層。這是外包需要花費大量溝通成本才能彌補的差距。
+                        </p>
+                    </div>
+                    <div class="group cursor-default">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-full bg-[#e6fffa] flex items-center justify-center text-[#27f194] font-bold">3</div>
+                            <h4 class="text-xl font-bold text-slate-800 group-hover:text-[#27f194] transition-colors">
+                                製作產能 (Capacity)
+                            </h4>
+                        </div>
+                        <p class="text-slate-500 pl-11 border-l-2 border-slate-200 group-hover:border-[#27f194] transition-colors">
+                            <span class="text-[#ff9432] font-bold">我們 < 外包。</span><br>
+                            這是我們誠實面對的劣勢。我們沒有大型印刷廠的人脈網，也沒有算圖農場。這正是我們需要外包的原因——讓他們成為我們的手腳。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 資源缺口分析 (動畫與印刷) -->
+        <section id="resources">
+            <div class="bg-slate-900 rounded-[2.5rem] p-8 md:p-16 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#27f194] rounded-full blur-[150px] opacity-10 pointer-events-none"></div>
+
+                <span class="text-[#27f194] font-bold tracking-widest text-xs uppercase mb-4 block">Part 03: Strategic Trade-offs</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-12">為什麼我們不自己做？(資源互補)</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10 max-w-5xl mx-auto">
+                    
+                    <!-- Animation Strategy -->
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 text-left hover:bg-slate-800 transition group">
+                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mb-6 text-2xl group-hover:bg-[#27f194] group-hover:text-slate-900 transition-colors">🎬</div>
+                        <h3 class="text-white font-bold text-xl mb-4">動畫製作 (Animation)</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-600">
+                                <span class="text-[#27f194] font-bold text-xs uppercase mb-1 block">In-House Role</span>
+                                <p class="text-slate-300 text-sm">
+                                    <strong>概念與分鏡 (Concept & Storyboard)</strong><br>
+                                    即便有 AI 工具輔助，我們專注於產出核心創意、腳本邏輯與美術設定。
+                                </p>
+                            </div>
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-dashed border-slate-600 opacity-70">
+                                <span class="text-[#ff9432] font-bold text-xs uppercase mb-1 block">Agency Role</span>
+                                <p class="text-slate-400 text-sm">
+                                    <strong>完整製作 (Full Production)</strong><br>
+                                    複雜的動態調整、3D 算圖與後期合成，交由擁有專門人力的外包執行。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Printing Strategy -->
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 text-left hover:bg-slate-800 transition group">
+                        <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center mb-6 text-2xl group-hover:bg-[#27f194] group-hover:text-slate-900 transition-colors">🖨️</div>
+                        <h3 class="text-white font-bold text-xl mb-4">印刷製作 (Printing)</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-600">
+                                <span class="text-[#27f194] font-bold text-xs uppercase mb-1 block">In-House Role</span>
+                                <p class="text-slate-300 text-sm">
+                                    <strong>材質設定與品管 (Spec & QC)</strong><br>
+                                    我們定義要用什麼紙、什麼工藝。因為案量較少，我們合作廠商少，但我們嚴控品質。
+                                </p>
+                            </div>
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-dashed border-slate-600 opacity-70">
+                                <span class="text-[#ff9432] font-bold text-xs uppercase mb-1 block">Agency Role</span>
+                                <p class="text-slate-400 text-sm">
+                                    <strong>供應鏈優勢 (Supply Chain)</strong><br>
+                                    外包商擁有大量印刷需求，能掌握更多廠商資源與議價空間。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 未來藍圖 (Interactive Roadmap) -->
+        <section id="future">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+                <div>
+                    <span class="text-[#ff9432] font-bold tracking-widest text-xs uppercase mb-2 block">Part 04: The Roadmap</span>
+                    <h2 class="text-3xl font-bold text-slate-900">轉型：從「製作手」到「創意腦」</h2>
+                </div>
+            </div>
+
+            <div class="card p-8 md:p-12">
+                <div class="mb-8">
+                    <label class="block text-sm font-bold text-slate-700 mb-4">
+                        模擬轉型進程 <span class="text-[#27f194] font-normal text-xs ml-2">(拖曳滑桿)</span>
+                    </label>
+                    <input type="range" id="strategySlider" min="0" max="100" value="20" class="w-full">
+                    <div class="flex justify-between mt-3 text-xs font-medium text-slate-400 uppercase tracking-widest">
+                        <span>執行製作 (Current)</span>
+                        <span class="text-[#27f194]">創意指導 (Future)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Dynamic Chart -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="futureChart"></canvas>
+                        </div>
+                        <p class="text-center text-sm text-slate-400 mt-4">角色價值分佈</p>
+                    </div>
+
+                    <!-- Dynamic List -->
+                    <div class="space-y-4 flex flex-col justify-center">
+                        <div id="phase-1" class="flex gap-4 p-4 rounded-xl transition-all duration-300 border border-transparent hover:border-slate-100">
+                            <div class="text-2xl font-black text-slate-200">01</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">概念定義 (Concept Lead)</h4>
+                                <p class="text-sm text-slate-500 mt-1">發揮我們的 Agency 背景優勢，產出高水準的創意腳本。即使沒有設備，我們的腦袋就是價值。</p>
+                            </div>
+                        </div>
+                        <div id="phase-2" class="flex gap-4 p-4 rounded-xl transition-all duration-300 border border-transparent hover:border-slate-100 opacity-50">
+                            <div class="text-2xl font-black text-slate-200">02</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">品質指導 (Director)</h4>
+                                <p class="text-sm text-slate-500 mt-1">指導擁有資源的外包商執行。我們不操作機器，我們操作操作機器的人。</p>
+                            </div>
+                        </div>
+                        <div id="phase-3" class="flex gap-4 p-4 rounded-xl transition-all duration-300 border border-transparent hover:border-slate-100 opacity-30">
+                            <div class="text-2xl font-black text-slate-200">03</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">品牌系統 (System)</h4>
+                                <p class="text-sm text-slate-500 mt-1">建立視覺資產庫，讓外包、印刷廠都能遵循我們的標準。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-100 py-12 text-center">
+        <p class="text-slate-400 text-sm">
+            Visual Design Team Strategy Proposal<br>
+            <span class="text-[#27f194] font-bold">Creative Brain, Not Just Hands.</span>
+        </p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // 色票設定
+        const colors = {
+            mint: '#27f194',
+            mintDark: '#059669',
+            orange: '#ff9432',
+            slate: '#cbd5e1',
+            slateDark: '#1e293b'
+        };
+
+        // 1. 現況圓餅圖 (Current Workload)
+        const ctxCurrent = document.getElementById('currentWorkloadChart').getContext('2d');
+        const currentChart = new Chart(ctxCurrent, {
+            type: 'doughnut',
+            data: {
+                labels: ['執行製作 (Hands-on)', '禮品設計 (Execution)', '視覺規範 (Strategy)', 'UI 支援 (Support)'],
+                datasets: [{
+                    data: [45, 25, 20, 10],
+                    backgroundColor: [colors.orange, '#fbbf24', colors.mint, colors.slate], 
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { family: "'Noto Sans TC'" } } }
+                }
+            }
+        });
+
+        // 2. 價值雷達圖 (Radar Chart - Updated Data)
+        const ctxRadar = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: [
+                    ['創意與風格', '(Creativity)'], // In-House = Agency (Background)
+                    ['品牌與法規', '(Context)'],   // In-House > Agency
+                    ['概念與分鏡', '(Concept)'],   // In-House > Agency
+                    ['動畫製作產能', '(Motion)'],  // In-House < Agency
+                    ['印刷廠資源', '(Printing)']   // In-House < Agency
+                ],
+                datasets: [{
+                    label: 'In-House (我們)',
+                    // High Creativity (Agency Background), High Brand/Concept. Low Production Resources.
+                    data: [9, 10, 10, 3, 2],
+                    backgroundColor: 'rgba(39, 241, 148, 0.2)', 
+                    borderColor: colors.mint,
+                    pointBackgroundColor: colors.mint,
+                    borderWidth: 2
+                }, {
+                    label: 'Agency (外包)',
+                    // High Creativity, High Resources. Lower Context/Concept (without guidance).
+                    data: [9, 5, 6, 10, 10],
+                    backgroundColor: 'rgba(255, 148, 50, 0.1)',
+                    borderColor: colors.orange,
+                    pointBackgroundColor: colors.orange,
+                    borderWidth: 2,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#f1f5f9' },
+                        grid: { color: '#f1f5f9' },
+                        pointLabels: { font: { size: 11, family: "'Noto Sans TC'" }, color: '#64748b' },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top', align: 'end', labels: { boxWidth: 10 } },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                if (context.label.includes('創意與風格')) {
+                                    return ' (團隊來自設計/廣告公司，創意實力相當)';
+                                }
+                                if (context.label.includes('動畫') || context.label.includes('印刷')) {
+                                    return ' (受限於設備與合作廠商數量，外包佔優)';
+                                }
+                                return '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. 未來藍圖圓餅圖 (Dynamic Doughnut)
+        const ctxFuture = document.getElementById('futureChart').getContext('2d');
+        const futureChart = new Chart(ctxFuture, {
+            type: 'doughnut',
+            data: {
+                labels: ['概念與指導 (Brain)', '品質審查 (Gatekeeper)', '執行製作 (Hands-on)'],
+                datasets: [{
+                    data: [15, 5, 80], 
+                    backgroundColor: [colors.mint, '#34d399', colors.orange], 
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            },
+            plugins: [{
+                id: 'textCenter',
+                beforeDraw: function(chart) {
+                    var width = chart.width, height = chart.height, ctx = chart.ctx;
+                    ctx.restore();
+                    var fontSize = (height / 114).toFixed(2);
+                    ctx.font = "bold " + fontSize + "em sans-serif";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "#1e293b";
+                    
+                    var text = Math.round(chart.data.datasets[0].data[0] + chart.data.datasets[0].data[1]) + "%",
+                        textX = Math.round((width - ctx.measureText(text).width) / 2),
+                        textY = height / 2;
+                    ctx.fillText(text, textX, textY);
+                    
+                    ctx.font = "normal " + (fontSize*0.3).toFixed(2) + "em sans-serif";
+                    ctx.fillStyle = "#94a3b8";
+                    var label = "腦袋佔比",
+                        labelX = Math.round((width - ctx.measureText(label).width) / 2),
+                        labelY = height / 2 + 20;
+                    ctx.fillText(label, labelX, labelY);
+                    ctx.save();
+                }
+            }]
+        });
+
+        // 滑桿互動邏輯
+        const slider = document.getElementById('strategySlider');
+        const phase1 = document.getElementById('phase-1');
+        const phase2 = document.getElementById('phase-2');
+        const phase3 = document.getElementById('phase-3');
+
+        slider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            // 策略佔比從 20% 開始，最高到 80%
+            const strategyRatio = 20 + (val * 0.6); 
+            const executionRatio = 100 - strategyRatio;
+            
+            // 策略部分再細分
+            const brain = strategyRatio * 0.6; // 腦袋工作
+            const gatekeeper = strategyRatio * 0.4; // 審查工作
+
+            futureChart.data.datasets[0].data = [brain, gatekeeper, executionRatio];
+            futureChart.update();
+
+            // 視覺回饋：清單項目的透明度與位移
+            phase1.style.opacity = val > 10 ? 1 : 0.5;
+            phase1.style.transform = val > 10 ? 'translateX(10px)' : 'translateX(0)';
+            
+            phase2.style.opacity = val > 45 ? 1 : 0.4;
+            phase2.style.transform = val > 45 ? 'translateX(10px)' : 'translateX(0)';
+
+            phase3.style.opacity = val > 80 ? 1 : 0.3;
+            phase3.style.transform = val > 80 ? 'translateX(10px)' : 'translateX(0)';
+        });
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
