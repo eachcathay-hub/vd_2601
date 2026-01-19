@@ -251,7 +251,7 @@
         <section id="value">
             <div class="mb-12 text-center">
                 <span class="text-[#27f194] font-bold tracking-widest text-xs uppercase mb-2 block">Part 02: The Core Strength</span>
-                <h2 class="text-3xl font-bold text-slate-900">我們不輸外包，因為我們「曾是」外包</h2>
+                <h2 class="text-3xl font-bold text-slate-900">我們更勝外包，因為我們「曾是」外包設計</h2>
                 <p class="text-slate-500 mt-4 max-w-2xl mx-auto">
                     我們的團隊成員具備<strong>設計公司與廣告公司背景</strong>。<br>
                     在創意與風格多樣性上，我們擁有同等實力，但多了品牌精準度。
@@ -549,7 +549,8 @@
                 return "錯誤：未輸入 API Key。";
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userApiKey}`;
+            // 使用 gemini-2.5-flash-preview-09-2025
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userApiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
             try {
