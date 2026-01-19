@@ -105,17 +105,19 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border-bottom: 1px solid #334155;
         }
-        .api-banner input {
+        .api-banner input, .api-banner select {
             color: #1e293b;
             padding: 0.35rem 0.75rem;
             border-radius: 0.375rem;
             border: 2px solid transparent;
-            width: 280px;
             font-family: monospace;
             outline: none;
             transition: all 0.2s;
         }
-        .api-banner input:focus {
+        .api-banner input { width: 250px; }
+        .api-banner select { width: 160px; cursor: pointer; }
+        
+        .api-banner input:focus, .api-banner select:focus {
             border-color: #27f194;
             box-shadow: 0 0 0 2px rgba(39, 241, 148, 0.3);
         }
@@ -143,9 +145,17 @@
 
     <!-- API Key Input Banner -->
     <div class="api-banner" id="api-banner">
-        <div class="flex items-center gap-2">
-            <span>🔑 啟用 AI 功能：</span>
-            <input type="password" id="user-api-key" placeholder="在此貼上 Google Gemini API Key">
+        <div class="flex items-center gap-2 flex-wrap justify-center">
+            <span>🔑 AI 設定：</span>
+            <input type="password" id="user-api-key" placeholder="貼上 Google Gemini API Key">
+            
+            <!-- Model Selector -->
+            <select id="user-model">
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (預設)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                <option value="gemini-1.0-pro">Gemini 1.0 Pro (舊版)</option>
+            </select>
+            
             <button onclick="saveApiKey()" class="api-btn">確認儲存</button>
         </div>
         <div class="flex items-center gap-4 text-xs text-slate-400">
@@ -157,7 +167,7 @@
     </div>
 
     <!-- 導航列 -->
-    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 border-b border-slate-100 top-[56px]">
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md z-50 border-b border-slate-100 top-[60px]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-2">
@@ -178,7 +188,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <header class="pt-48 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto nav-spacer">
+    <header class="pt-56 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto nav-spacer">
         <div class="relative">
             <div class="absolute -top-10 -left-10 w-32 h-32 bg-[#27f194] rounded-full blur-[80px] opacity-20"></div>
             
@@ -221,7 +231,7 @@
                 <p class="text-slate-500 max-w-md text-right md:text-left mt-4 md:mt-0 text-sm">
                     主管的質疑來自於誤解：<br>
                     以為我們只是「做得比較美的設計團隊」，<br>
-                    忽略了我們是「擁有 Agency 腦袋的內部團隊」。
+                    忽略了我們是「擁有 Agency 腦袋與快速理解需求的內部團隊」。
                 </p>
             </div>
 
@@ -251,7 +261,7 @@
         <section id="value">
             <div class="mb-12 text-center">
                 <span class="text-[#27f194] font-bold tracking-widest text-xs uppercase mb-2 block">Part 02: The Core Strength</span>
-                <h2 class="text-3xl font-bold text-slate-900">我們更勝外包，因為我們「曾是」外包設計</h2>
+                <h2 class="text-3xl font-bold text-slate-900">我們不輸外包，因為我們「曾來自於」外包</h2>
                 <p class="text-slate-500 mt-4 max-w-2xl mx-auto">
                     我們的團隊成員具備<strong>設計公司與廣告公司背景</strong>。<br>
                     在創意與風格多樣性上，我們擁有同等實力，但多了品牌精準度。
@@ -280,7 +290,7 @@
                         </div>
                         <p class="text-slate-500 pl-11 border-l-2 border-slate-200 group-hover:border-[#27f194] transition-colors">
                             <span class="text-slate-800 font-bold">我們 = 外包。</span><br>
-                            團隊來自業界，同樣具備高水準的視覺美感與風格掌握力。我們不是因為「做不出好東西」才在內部，而是為了「做對的東西」。
+                            團隊來自業界，同樣具備高水準的視覺美感與風格掌握力。我們不是因為「做不出好東西」才在內部，而是為了「做對的東西」才來內部。
                         </p>
                     </div>
                     <div class="group cursor-default">
@@ -517,15 +527,19 @@
     <script>
         // --- Gemini API ---
         let userApiKey = "";
+        let selectedModel = "gemini-1.5-flash"; // 預設模型
 
         function saveApiKey() {
             const input = document.getElementById('user-api-key');
+            const modelSelect = document.getElementById('user-model');
             const val = input.value.trim();
+            
             if (!val) {
                 alert("請先輸入 API Key 喔！");
                 return;
             }
             userApiKey = val;
+            selectedModel = modelSelect.value;
             
             // Visual Feedback
             input.style.borderColor = '#27f194';
@@ -536,10 +550,10 @@
             const statusMsg = document.getElementById('ai-status-msg');
             if(statusMsg) {
                 statusMsg.className = "text-xs text-[#27f194] mt-2 font-bold";
-                statusMsg.innerHTML = "✅ API Key 已儲存，AI 功能已就緒";
+                statusMsg.innerHTML = `✅ 已就緒 (使用模型: ${selectedModel})`;
             }
             
-            alert("API Key 已成功儲存！現在可以使用 AI 策略工具了。");
+            alert(`設定成功！目前使用模型：${selectedModel}`);
         }
         
         async function callGemini(prompt) {
@@ -549,8 +563,8 @@
                 return "錯誤：未輸入 API Key。";
             }
 
-            // 使用 gemini-2.5-flash-preview-09-2025
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userApiKey}`;
+            // 動態使用選擇的模型
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${userApiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
             try {
@@ -562,14 +576,15 @@
                 
                 if (!response.ok) {
                     const errData = await response.json();
-                    throw new Error(errData.error?.message || `API Error: ${response.status}`);
+                    const errMsg = errData.error?.message || response.statusText;
+                    throw new Error(`API 錯誤 (${response.status}): ${errMsg}`);
                 }
                 
                 const data = await response.json();
                 return data.candidates?.[0]?.content?.parts?.[0]?.text || "AI 暫時無法回應，請稍後再試。";
             } catch (error) {
                 console.error("Gemini API Error:", error);
-                return `連線發生錯誤：${error.message}。\n請檢查 API Key 是否正確。`;
+                return `連線失敗：${error.message}\n\n建議：\n1. 請檢查 API Key 是否正確\n2. 嘗試在上方切換其他模型 (如 Gemini 1.0 Pro)`;
             }
         }
 
