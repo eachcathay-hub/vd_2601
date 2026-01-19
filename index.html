@@ -115,7 +115,7 @@
             transition: all 0.2s;
         }
         .api-banner input { width: 250px; }
-        .api-banner select { width: 220px; cursor: pointer; background-color: #fff; }
+        .api-banner select { width: 250px; cursor: pointer; background-color: #fff; }
         
         .api-banner input:focus, .api-banner select:focus {
             border-color: #27f194;
@@ -149,14 +149,14 @@
             <span>🔑 AI 設定：</span>
             <input type="password" id="user-api-key" placeholder="貼上 Google Gemini API Key">
             
-            <!-- Model Selector (Expanded) -->
+            <!-- Model Selector (Expanded with new models) -->
             <select id="user-model">
+                <option value="gemini-2.5-flash-preview-09-2025">Gemini 2.5 Flash (最新預覽)</option>
                 <option value="gemini-1.5-flash">Gemini 1.5 Flash (預設)</option>
-                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
-                <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8b (極速)</option>
+                <option value="gemini-1.5-flash-001">Gemini 1.5 Flash-001 (穩定版)</option>
+                <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8b (輕量)</option>
                 <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
-                <option value="gemini-pro">Gemini Pro (經典穩定版)</option>
+                <option value="gemini-pro">Gemini Pro (1.0 經典版)</option>
             </select>
             
             <button onclick="saveApiKey()" class="api-btn">確認儲存</button>
@@ -234,7 +234,7 @@
                 <p class="text-slate-500 max-w-md text-right md:text-left mt-4 md:mt-0 text-sm">
                     主管的質疑來自於誤解：<br>
                     以為我們只是「做得比較美的設計團隊」，<br>
-                    忽略了我們是「擁有 Agency 腦袋與理解需求與善於溝通的內部團隊」。
+                    忽略了我們是「擁有 Agency 腦袋與理解需求、善於溝通的內部團隊」。
                 </p>
             </div>
 
@@ -530,7 +530,7 @@
     <script>
         // --- Gemini API ---
         let userApiKey = "";
-        let selectedModel = "gemini-1.5-flash"; // Default
+        let selectedModel = "gemini-2.5-flash-preview-09-2025"; // Default updated
 
         function saveApiKey() {
             const input = document.getElementById('user-api-key');
