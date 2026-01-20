@@ -149,7 +149,7 @@
             <span>🔑 AI 設定：</span>
             <input type="password" id="user-api-key" placeholder="貼上 Google Gemini API Key">
             
-            <!-- Model Selector (Expanded with new models) -->
+            <!-- Model Selector -->
             <select id="user-model">
                 <option value="gemini-2.5-flash-preview-09-2025">Gemini 2.5 Flash (最新預覽)</option>
                 <option value="gemini-1.5-flash">Gemini 1.5 Flash (預設)</option>
@@ -293,7 +293,7 @@
                         </div>
                         <p class="text-slate-500 pl-11 border-l-2 border-slate-200 group-hover:border-[#27f194] transition-colors">
                             <span class="text-slate-800 font-bold">我們 = 外包。</span><br>
-                            團隊來自業界，同樣具備高水準的視覺美感與風格掌握力。我們不是因為「做不出好東西」才在內部，而是為了「做對的東西」才來內部。
+                            團隊來自業界，同樣具備高水準的視覺美感與風格掌握力。我們不是因為「做不出好東西」才在內部，而是為了「做對的東西」。
                         </p>
                     </div>
                     <div class="group cursor-default">
@@ -524,13 +524,58 @@
             Visual Design Team Strategy Proposal<br>
             <span class="text-[#27f194] font-bold">Creative Brain, Not Just Hands.</span>
         </p>
+        
+        <!-- Visitor Counter -->
+        <div class="mt-4 flex justify-center items-center gap-2 text-xs text-slate-300">
+            <span id="visit-counter-container" style="display:none;" class="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded">
+                👀 累計瀏覽：<span id="visit-count" class="font-mono text-[#27f194] font-bold">--</span> 人次
+            </span>
+        </div>
     </footer>
 
     <!-- Logic Script -->
     <script>
         // --- Gemini API ---
         let userApiKey = "";
-        let selectedModel = "gemini-2.5-flash-preview-09-2025"; // Default updated
+        let selectedModel = "gemini-2.5-flash-preview-09-2025"; // Updated Default
+
+        // Load settings from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedKey = localStorage.getItem('gemini_api_key');
+            const storedModel = localStorage.getItem('gemini_model');
+            
+            if (storedKey) {
+                userApiKey = storedKey;
+                document.getElementById('user-api-key').value = storedKey;
+                
+                // Visual feedback for loaded key
+                const input = document.getElementById('user-api-key');
+                input.style.borderColor = '#27f194';
+                input.style.backgroundColor = '#f0fdf7';
+                input.style.color = '#064e3b';
+                
+                const statusMsg = document.getElementById('ai-status-msg');
+                if(statusMsg) {
+                    statusMsg.className = "text-xs text-[#27f194] mt-2 font-bold";
+                    statusMsg.innerHTML = `✅ 已載入您的 API Key`;
+                }
+            }
+            
+            if (storedModel) {
+                selectedModel = storedModel;
+                const modelSelect = document.getElementById('user-model');
+                if (modelSelect) modelSelect.value = storedModel;
+                
+                 // Update status if key exists
+                const statusMsg = document.getElementById('ai-status-msg');
+                if(userApiKey && statusMsg) {
+                     statusMsg.innerHTML = `✅ 已就緒 (模型: ${selectedModel})`;
+                }
+            }
+            
+            // Initialize Visitor Counter
+            updateVisitCount();
+        });
 
         function saveApiKey() {
             const input = document.getElementById('user-api-key');
@@ -544,6 +589,10 @@
             userApiKey = val;
             selectedModel = modelSelect.value;
             
+            // Save to LocalStorage
+            localStorage.setItem('gemini_api_key', userApiKey);
+            localStorage.setItem('gemini_model', selectedModel);
+            
             // Visual Feedback
             input.style.borderColor = '#27f194';
             input.style.backgroundColor = '#f0fdf7';
@@ -556,7 +605,7 @@
                 statusMsg.innerHTML = `✅ 已就緒 (模型: ${selectedModel})`;
             }
             
-            alert(`設定成功！目前使用模型：${selectedModel}\n\n如果不成功，請嘗試切換到「Gemini Pro (經典版)」。`);
+            alert(`設定已儲存！\n\nAPI Key 和模型選擇已記錄在您的瀏覽器中。\n目前使用模型：${selectedModel}`);
         }
         
         async function callGemini(prompt) {
@@ -566,8 +615,7 @@
                 return "錯誤：未輸入 API Key。";
             }
 
-            // URL Construction: Ensure version is correct based on model
-            // For gemini-pro (v1), usually v1beta is also fine, but v1beta is safer for all.
+            // Ensure we use v1beta for newer models
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${userApiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
@@ -589,10 +637,9 @@
             } catch (error) {
                 console.error("Gemini API Error:", error);
                 
-                // Friendly Error Message Logic
                 let displayMsg = `連線失敗：${error.message}`;
                 if (error.message.includes("404") || error.message.includes("not found")) {
-                    displayMsg = `⚠️ 模型找不到 (404)\n\n原因：您目前的 API Key 無法存取 ${selectedModel}。\n\n💡 解決方法：\n請在上方選單切換成「Gemini Pro (經典穩定版)」或「Gemini 1.0 Pro」，然後再次點擊「確認儲存」。`;
+                    displayMsg = `⚠️ 模型找不到 (404)\n\n原因：您的 API Key 目前無法存取 ${selectedModel}。\n\n💡 解決方法：\n請在上方選單切換成「Gemini 1.5 Flash-001」或「Gemini Pro (經典版)」，然後再次點擊「確認儲存」。`;
                 }
                 return displayMsg;
             }
@@ -606,7 +653,7 @@
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
             
-            const systemPrompt = `你是一位金控集團的視覺策略顧問。你的任務是幫助視覺設計師將「低價值的執行工作」轉化為「高價值的策略資產」。
+            const systemPrompt = `你是一位金控集團的視覺資深策略顧問。你的任務是幫助視覺設計師將「低價值的執行工作」轉化為「高價值的策略資產」。
             
             使用者的輸入任務是：「${topic}」
 
@@ -615,7 +662,7 @@
             2. **升級策略**：如何將這個任務升級？（例如：從做單張圖變成做規範、從執行變成制定風格）
             3. **具體行動**：列出 3 點具體建議，讓設計師可以在這個專案中展現「大腦」的價值。
             
-            語氣要專業、具啟發性，強調「建立資產」與「制定規則」。`;
+            語氣要專業、具啟發性，強調「建立資產」與「制定規則」，盡可能找出業界相似的案例。`;
 
             const response = await callGemini(systemPrompt);
             resultBox.innerHTML = marked.parse(response);
@@ -629,13 +676,13 @@
             resultBox.classList.remove('hidden');
             resultBox.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
             
-            const systemPrompt = `你是一位金控集團的視覺設計策略總監。團隊擁有 Agency 背景但缺乏大型製作資源。
+            const systemPrompt = `你是一位金控集團的資深視覺設計策略總監。團隊擁有 Agency 背景但缺乏大型製作資源。
             任務：回應主管質疑「${topic}」
             策略：
             1. 肯定執行困難（承認資源不足）。
             2. 強調「大腦價值」（Concept, QC）。
             3. 定義我們是導戲的導演。
-            請生成約 100 字的專業回應（Markdown 格式）。使用繁體中文。`;
+            請生成約 200 字的專業回應（Markdown 格式），盡可能找出業界相似的案例。使用繁體中文。`;
 
             const response = await callGemini(systemPrompt);
             resultBox.innerHTML = marked.parse(response);
@@ -654,10 +701,34 @@
             1. **核心概念 (Name)**
             2. **視覺調性 (Tone)**
             3. **分鏡大綱 (Storyboard)**：3個關鍵畫面。
-            證明團隊的概念規劃能力。使用繁體中文。`;
+            證明團隊的概念規劃能力，盡可能找出業界相似的案例。使用繁體中文。`;
 
             const response = await callGemini(systemPrompt);
             resultBox.innerHTML = marked.parse(response);
+        }
+
+        // --- Visitor Counter Logic (using CounterAPI) ---
+        // You can change 'visual-design-strategy-v1' to any unique string to start a new counter.
+        const counterNamespace = 'visual-design-strategy-v1'; 
+        const counterKey = 'visits';
+
+        function updateVisitCount() {
+            const countDisplay = document.getElementById('visit-count');
+            const container = document.getElementById('visit-counter-container');
+            
+            // Try to fetch from CounterAPI
+            fetch(`https://api.counterapi.dev/v1/${counterNamespace}/${counterKey}/up`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data && data.count) {
+                        countDisplay.innerText = data.count;
+                        container.style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    console.log('Counter API error:', err);
+                    // Fail silently or hide the counter if API is down
+                });
         }
 
         // --- Charts ---
